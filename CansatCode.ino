@@ -1,7 +1,6 @@
 #include <Servo.h>
 #include <CanSatKit.h>
 #include <LM35.h>
-#include <mpu9250.h>
 //#include biblioteka dla kart microSD
 
 using namespace CanSatKit;
@@ -55,4 +54,3 @@ void loop() {
     //delay(1000/750/500);
   }
 }
-
