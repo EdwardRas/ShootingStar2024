@@ -7,27 +7,31 @@ using namespace CanSatKit;
 
 bool isFlying = false;
 bool isAirbagDeployed = false;
-int pressure = 0;
-int temperature = 0;
-int altitude = 0;
-int prevAltitude = 0;
-int acceleration = 0;
-int altChange = 0;
+float pressure = 0;
+float temperature = 0;
+float altitude = 0;
+float prevAltitude = 0;
+float acceleration = 0;
+float altChange = 0;
 int t = 0;
 
-BMP280 bmp;
+BMP280 PresSensor;
+LM35 TempSensor(LM35pin);
 
 void setup() {
   // put your setup code here, to run once:
+  PresSensor.begin();
+  //not sure if its needed
+  TempSensor.begin();
   //Only for testing:
   Serial.begin(9600);
-  if(!bmp.begin()){
+  if(!PresSensor.begin()){
     Serial.println(BMP280 init failed!);
   }
   else{
     Seiral.println(BMP280 init succesful);
   }
-   bmp.setOversampling(16);
+   PresSensor.setOversampling(16);
 }
 
 void loop() {
@@ -43,9 +47,11 @@ void loop() {
     t++;
     //get acceleration;
     //get temperature;
+    temperature = TempSensor.cel();
     //get pressure;
-    bmp.measurePressure(pressure);
+    pressure = PresSensor.getPressure();
     //store previous altitude;
+    prevAltitude = altitude;
     //use barometric formula to calculate approx altitude;
     //calculate change in altitude (altitude - previous altitude);
     //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(servo to 90 degrees); airbagDeployed = true;
