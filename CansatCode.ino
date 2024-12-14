@@ -1,7 +1,8 @@
 #include <Servo.h>
 #include <CanSatKit.h>
-#include <LM35.h>
 //#include biblioteka dla kart microSD
+
+#define LM35Pin A0
 
 using namespace CanSatKit;
 
@@ -13,10 +14,11 @@ float altitude = 0;
 float prevAltitude = 0;
 float acceleration = 0;
 float altChange = 0;
+float rawTemp = 0;
+float voltage = 0;
 int t = 0;
 
 BMP280 PresSensor;
-LM35 TempSensor(LM35pin);
 
 void setup() {
   // put your setup code here, to run once:
@@ -38,25 +40,36 @@ void loop() {
   // put your main code here, to run repeatedly:
   //On the ground mode, detect if acceleration is greater than 10 m/s^2
   if(!isFlying){
-    //prevAltitude = altitude
-    //get altitude
-    // if altitude - prev altitude >= 10m/s, flying = 1; break;
+    prevAltitude = altitude
+    get altitude
+    if (altitude - prev altitude >= 10m/s){
+      isFlying = true;
+      break;
+    }
   }
   // Flight mode, conduct all measurements and check to deploy airbag, send and record data
   else{
     t++;
     //get acceleration;
     //get temperature;
-    temperature = TempSensor.cel();
+    float voltage = rawTemp * 5 / (std::pow(2, 12));
+    float temperature = 100.0 * voltage;
     //get pressure;
     pressure = PresSensor.getPressure();
     //store previous altitude;
     prevAltitude = altitude;
     //use barometric formula to calculate approx altitude;
     //calculate change in altitude (altitude - previous altitude);
-    //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(servo to 90 degrees); airbagDeployed = true;
+    altChange = altitude - prevAltitude;
+    //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true;
+    if (altChange <= 10){
+      if (!isAirbagDeployed){
+        //set powerPin to high to let power through(double transistor);
+        isAirbagDeployed = true;
+      }
+    }
     //record all data on sd card;
     //send all data (acceleration, temperature, pressure, altitude, change in altitude, airbagStatus) via radio;
-    //delay(1000/750/500);
+    delay(750);
   }
 }
