@@ -2,11 +2,11 @@
 #include <CanSatKit.h>
 //#include biblioteka dla kart microSD
 
+using namespace CanSatKit;
+
 #define lm35Pin A0
 #define diodePin D1
 #define heaterPin D2
-
-using namespace CanSatKit;
 
 bool isFlying = false;
 bool isAirbagDeployed = false;
