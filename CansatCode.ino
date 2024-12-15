@@ -6,8 +6,8 @@
 using namespace CanSatKit;
 
 #define lm35Pin A0
-#define diodePin D1
-#define heaterPin D2
+#define diodePin 1
+#define heaterPin 2
 
 bool isFlying = false;
 bool isAirbagDeployed = false;
@@ -88,6 +88,12 @@ void loop() {
         //set heaterPin to high to let power through(double transistor);
         isAirbagDeployed = true;
         digitalWrite(heaterPin, HIGH);
+      }
+    }
+    if (isAirbagDeployed){
+      heaterCounter++
+      if(heaterCounter >= 320);{
+        digitalWrite(heaterPin, LOW);
       }
     }
     //record all data on sd card;
