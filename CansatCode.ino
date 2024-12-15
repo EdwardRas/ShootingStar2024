@@ -91,8 +91,8 @@ void loop() {
       }
     }
     if (isAirbagDeployed){
-      heaterCounter++
-      if(heaterCounter >= 320);{
+      heaterCounter++;
+      if(heaterCounter >= 320){
         digitalWrite(heaterPin, LOW);
       }
     }
