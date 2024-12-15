@@ -1,5 +1,6 @@
 #include <Servo.h>
 #include <CanSatKit.h>
+#include <floatToString.h>
 //#include biblioteka dla kart microSD
 
 using namespace CanSatKit;
