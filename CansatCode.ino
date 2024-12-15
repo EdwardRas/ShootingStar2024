@@ -31,6 +31,14 @@ SerialUSB.println(measurement);
   // change to radio.transmit(measurement);
 }
 
+void sendClock(){
+  float x = t;
+ char time [7];
+  floatToString(x, time, sizeof(time), 1);
+SerialUSB.println(time);
+t++;
+}
+
 void sendAllMeasurements (void){
   sendMeasurement(temperature);
   sendMeasurement(pressure);
@@ -38,6 +46,7 @@ void sendAllMeasurements (void){
   sendMeasurement(altitude);
   sendMeasurement(altChange);
   sendMeasurement(isAirbagDeployed);
+  sendClock()
 }
 
 void setup() {
