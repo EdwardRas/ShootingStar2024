@@ -11,8 +11,6 @@ using namespace CanSatKit;
 
 bool isFlying = false;
 bool isAirbagDeployed = false;
-float pressure = 0;
-float temperature = 0;
 float altitude = 0;
 float prevAltitude = 0;
 float acceleration = 0;
@@ -21,6 +19,7 @@ float rawTemp = 0;
 float voltage = 0;
 int t = 0;
 int heaterCounter = 0;
+double temperature, pressure;
 
 BMP280 PresSensor;
 
@@ -84,7 +83,7 @@ void loop() {
     float voltage = rawTemp * 5 / (std::pow(2, 12));
     float temperature = 100.0 * voltage;
     //get pressure;
-    pressure = PresSensor.getPressure();
+    PresSensor.measureTemperatureAndPressure(temperature, pressure);
     //store previous altitude;
     prevAltitude = altitude;
     //use barometric formula to calculate approx altitude;
