@@ -24,6 +24,22 @@ int heaterCounter = 0;
 
 BMP280 PresSensor;
 
+void sendMeasurement (float data){
+  char measurement [7];
+  floatToString(data, measurement, sizeof(measurement), 4);
+SerialUSB.println(measurement);
+  // change to radio.transmit(measurement);
+}
+
+void sendAllMeasurements (void){
+  sendMeasurement(temperature);
+  sendMeasurement(pressure);
+  sendMeasurement(acceleration);
+  sendMeasurement(altitude);
+  sendMeasurement(altChange);
+  sendMeasurement(isAirbagDeployed);
+}
+
 void setup() {
   // put your setup code here, to run once:
   PresSensor.begin();
@@ -76,6 +92,7 @@ void loop() {
     }
     //record all data on sd card;
     //send all data (acceleration, temperature, pressure, altitude, change in altitude, airbagStatus) via radio;
+    sendAllMeasurements();
     delay(750);
   }
 }
