@@ -40,13 +40,13 @@ t++;
 }
 
 void sendAllMeasurements (void){
+  sendClock();
   sendMeasurement(temperature);
   sendMeasurement(pressure);
   sendMeasurement(acceleration);
   sendMeasurement(altitude);
   sendMeasurement(altChange);
   sendMeasurement(isAirbagDeployed);
-  sendClock()
 }
 
 void setup() {
