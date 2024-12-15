@@ -29,12 +29,12 @@ void setup() {
   pinMode(diodePin, OUTPUT);
   pinMode(heaterPin, OUTPUT);
   //Only for testing:
-  Serial.begin(9600);
+  SerialUSB.begin(9600);
   if(!PresSensor.begin()){
-    Serial.println(BMP280 init failed!);
+    SerialUSB.println(BMP280 init failed!);
   }
   else{
-    Seiral.println(BMP280 init succesful);
+    SeiralUSB.println(BMP280 init succesful);
   }
    PresSensor.setOversampling(16);
 }
