@@ -2,7 +2,9 @@
 #include <CanSatKit.h>
 //#include biblioteka dla kart microSD
 
-#define LM35Pin A0
+#define lm35Pin A0
+#define diodePin D1
+#define heaterPin D2
 
 using namespace CanSatKit;
 
@@ -17,14 +19,15 @@ float altChange = 0;
 float rawTemp = 0;
 float voltage = 0;
 int t = 0;
+int heaterCounter = 0;
 
 BMP280 PresSensor;
 
 void setup() {
   // put your setup code here, to run once:
   PresSensor.begin();
-  //not sure if its needed
-  TempSensor.begin();
+  pinMode(diodePin, OUTPUT);
+  pinMode(heaterPin, OUTPUT);
   //Only for testing:
   Serial.begin(9600);
   if(!PresSensor.begin()){
@@ -40,8 +43,8 @@ void loop() {
   // put your main code here, to run repeatedly:
   //On the ground mode, detect if acceleration is greater than 10 m/s^2
   if(!isFlying){
-    prevAltitude = altitude
-    get altitude
+    prevAltitude = altitude;
+    //get altitude
     if (altitude - prev altitude >= 10m/s){
       isFlying = true;
       break;
@@ -62,10 +65,12 @@ void loop() {
     //calculate change in altitude (altitude - previous altitude);
     altChange = altitude - prevAltitude;
     //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true;
+    
     if (altChange <= 10){
       if (!isAirbagDeployed){
-        //set powerPin to high to let power through(double transistor);
+        //set heaterPin to high to let power through(double transistor);
         isAirbagDeployed = true;
+        digitalWrite(heaterPin, HIGH);
       }
     }
     //record all data on sd card;
