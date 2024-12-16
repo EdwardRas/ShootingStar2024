@@ -35,6 +35,7 @@ void sendClock(){
  char time [7];
   floatToString(x, time, sizeof(time), 1);
 SerialUSB.println(time);
+  // change to radio.transmit(time);
 t++;
 }
 
