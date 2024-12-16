@@ -71,7 +71,7 @@ void loop() {
   if(!isFlying){
     prevAltitude = altitude;
     //get altitude
-    if (altitude - prev altitude >= 10m/s){
+    if (altitude - prevAltitude >= 10m/s){
       isFlying = true;
       break;
     }
