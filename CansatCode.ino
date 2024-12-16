@@ -58,7 +58,7 @@ void setup() {
   // put your setup code here, to run once:
   PresSensor.begin();
   Wire.begin();
-  byte deviceID = accel.readDeviceID();
+  byte deviceID = accel.getDeviceID();
   pinMode(diodePin, OUTPUT);
   pinMode(heaterPin, OUTPUT);
   #ifndef ESP8266
