@@ -48,7 +48,7 @@ void sendAllMeasurements (void){
   sendClock();
   sendMeasurement(temperature);
   sendMeasurement(pressure);
-  sendMeasurement(acceleration);
+  sendMeasurement(zAcceleration);
   sendMeasurement(altitude);
   sendMeasurement(altChange);
   sendMeasurement(isAirbagDeployed);
@@ -58,7 +58,7 @@ void setup() {
   // put your setup code here, to run once:
   PresSensor.begin();
   Wire.begin();
-  byte deviceID = accelerometer.readDeviceID();
+  byte deviceID = accel.readDeviceID();
   pinMode(diodePin, OUTPUT);
   pinMode(heaterPin, OUTPUT);
   #ifndef ESP8266
@@ -73,7 +73,7 @@ void setup() {
   }
 
   /* Set the range to whatever is appropriate for your project */
-  acceler.setRange(ADXL345_RANGE_16_G);
+  accel.setRange(ADXL345_RANGE_16_G);
   //Only for testing:
   SerialUSB.begin(9600);
   if(!PresSensor.begin()){
@@ -128,7 +128,7 @@ void loop() {
       }
     }
     //record all data on sd card;
-    //send all data (acceleration, temperature, pressure, altitude, change in altitude, airbagStatus) via radio;
+    //send all data (zAcceleration, temperature, pressure, altitude, change in altitude, airbagStatus) via radio;
     sendAllMeasurements();
     delay(750);
   }
