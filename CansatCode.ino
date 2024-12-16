@@ -71,9 +71,8 @@ void loop() {
   if(!isFlying){
     prevAltitude = altitude;
     //get altitude
-    if (altitude - prevAltitude >= 10m/s){
+    if (altitude - prevAltitude >= 10){
       isFlying = true;
-      break;
     }
   }
   // Flight mode, conduct all measurements and check to deploy airbag, send and record data
