@@ -19,7 +19,8 @@ float rawTemp = 0;
 float voltage = 0;
 int t = 0;
 int heaterCounter = 0;
-double temperature, pressure;
+double temperature = 0;
+double pressure = 0;
 
 BMP280 PresSensor;
 
@@ -81,7 +82,7 @@ void loop() {
     //get acceleration;
     //get temperature;
     float voltage = rawTemp * 5 / (std::pow(2, 12));
-    float temperature = 100.0 * voltage;
+    double temperature = 100.0 * voltage;
     //get pressure;
     PresSensor.measureTemperatureAndPressure(temperature, pressure);
     //store previous altitude;
