@@ -80,11 +80,11 @@ void loop() {
   else{
     t++;
     //get acceleration;
+    //get pressure;
+    PresSensor.measureTemperatureAndPressure(temperature, pressure);
     //get temperature;
     float voltage = rawTemp * 5 / (std::pow(2, 12));
     double temperature = 100.0 * voltage;
-    //get pressure;
-    PresSensor.measureTemperatureAndPressure(temperature, pressure);
     //store previous altitude;
     prevAltitude = altitude;
     //use barometric formula to calculate approx altitude;
