@@ -57,10 +57,10 @@ void setup() {
   //Only for testing:
   SerialUSB.begin(9600);
   if(!PresSensor.begin()){
-    SerialUSB.println(BMP280 init failed!);
+    SerialUSB.println("BMP280 init failed!");
   }
   else{
-    SeiralUSB.println(BMP280 init succesful);
+    SerialUSB.println("BMP280 init succesful");
   }
    PresSensor.setOversampling(16);
 }
