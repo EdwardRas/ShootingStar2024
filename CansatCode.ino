@@ -101,7 +101,7 @@ void loop() {
     //get acceleration;
     sensors_event_t event; 
     accel.getEvent(&event);
-    zAcceleration = event.acceleration.z
+    zAcceleration = event.acceleration.z;
     //get pressure;
     PresSensor.measureTemperatureAndPressure(temperature, pressure);
     //get temperature;
