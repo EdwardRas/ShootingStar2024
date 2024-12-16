@@ -1,6 +1,9 @@
 #include <Servo.h>
 #include <CanSatKit.h>
 #include <floatToString.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_ADXL345_U.h>
 //#include biblioteka dla kart microSD
 
 using namespace CanSatKit;
@@ -13,7 +16,7 @@ bool isFlying = false;
 bool isAirbagDeployed = false;
 float altitude = 0;
 float prevAltitude = 0;
-float acceleration = 0;
+float zAcceleration = 0;
 float altChange = 0;
 float rawTemp = 0;
 float voltage = 0;
@@ -23,6 +26,7 @@ double temperature = 0;
 double pressure = 0;
 
 BMP280 PresSensor;
+Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 
 void sendMeasurement (float data){
   char measurement [7];
@@ -53,8 +57,23 @@ void sendAllMeasurements (void){
 void setup() {
   // put your setup code here, to run once:
   PresSensor.begin();
+  Wire.begin();
+  byte deviceID = accelerometer.readDeviceID();
   pinMode(diodePin, OUTPUT);
   pinMode(heaterPin, OUTPUT);
+  #ifndef ESP8266
+  while (!SerialUSB); // for Leonardo/Micro/Zero
+  #endif
+  /* Initialise the sensor */
+  if(!accel.begin())
+  {
+    /* There was a problem detecting the ADXL345 ... check your connections */
+    SerialUSB.println("Ooops, no ADXL345 detected ... Check your wiring!");
+    while(1);
+  }
+
+  /* Set the range to whatever is appropriate for your project */
+  acceler.setRange(ADXL345_RANGE_16_G);
   //Only for testing:
   SerialUSB.begin(9600);
   if(!PresSensor.begin()){
@@ -80,6 +99,9 @@ void loop() {
   else{
     t++;
     //get acceleration;
+    sensors_event_t event; 
+    accel.getEvent(&event);
+    zAcceleration = event.acceleration.z
     //get pressure;
     PresSensor.measureTemperatureAndPressure(temperature, pressure);
     //get temperature;
