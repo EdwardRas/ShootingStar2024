@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_ADXL345_U.h>
-//#include biblioteka dla kart microSD
+#include <SD.h>
 
 using namespace CanSatKit;
 
