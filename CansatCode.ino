@@ -28,6 +28,13 @@ double pressure = 0;
 BMP280 PresSensor;
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 
+//Radio radio(Pins::Radio::ChipSelect,
+ //           Pins::Radio::DIO0,
+    //        433.0,
+        //    Bandwidth_125000_Hz,
+         //   SpreadingFactor_9,
+            //CodingRate_4_8);
+
 void sendMeasurement (float data){
   char measurement [7];
   floatToString(data, measurement, sizeof(measurement), 4);
@@ -56,6 +63,7 @@ void sendAllMeasurements (void){
 
 void setup() {
   // put your setup code here, to run once:
+  //radio.begin();
   PresSensor.begin();
   Wire.begin();
   byte deviceID = accel.getDeviceID();
