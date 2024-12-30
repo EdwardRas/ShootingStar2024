@@ -117,14 +117,15 @@ void loop() {
     temperature = 100.0 * voltage;
     //store previous altitude;
     prevAltitude = altitude;
-    //use barometric formula to calculate approx altitude;
+    //use formula from wikipedia to calculate approx altitude;
+    altitude = (1013 - pressure) / 0.12
     //calculate change in altitude (altitude - previous altitude);
     altChange = altitude - prevAltitude;
     //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true;
     
     if (altChange <= 10){
       if (!isAirbagDeployed){
-        //set heaterPin to high to let power through(double transistor);
+        //set heaterPin to high to let power through(transistor)
         isAirbagDeployed = true;
         digitalWrite(heaterPin, HIGH);
       }
