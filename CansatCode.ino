@@ -9,7 +9,6 @@
 using namespace CanSatKit;
 
 #define lm35Pin A0
-#define diodePin 1
 #define heaterPin 2
 
 bool isFlying = false;
@@ -68,7 +67,6 @@ void setup() {
   PresSensor.begin();
   Wire.begin();
   byte deviceID = accel.getDeviceID();
-  pinMode(diodePin, OUTPUT);
   pinMode(heaterPin, OUTPUT);
   #ifndef ESP8266
   while (!SerialUSB); // for Leonardo/Micro/Zero
@@ -105,6 +103,7 @@ void loop() {
     altitude = (1013 - pressure) / 0.12
     if (altitude - prevAltitude >= 10){
       isFlying = true;
+     delay(750);
     }
   }
   // Flight mode, conduct all measurements and check to deploy airbag, send and record data
@@ -127,7 +126,7 @@ void loop() {
     altChange = altitude - prevAltitude;
     //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true;
     
-    if (altChange <= 10){
+    if (altChange >= 10){
       if (!isAirbagDeployed){
         //set heaterPin to high to let power through(transistor)
         isAirbagDeployed = true;
@@ -140,6 +139,11 @@ void loop() {
         digitalWrite(heaterPin, LOW);
       }
     }
+   if (altitude <= 500){
+    if (altChange <= 1){
+     isLanded = true;
+    }
+   }
     //record all data on sd card;
     //send all data (zAcceleration, temperature, pressure, altitude, change in altitude, airbagStatus) via radio;
     sendAllMeasurements();
