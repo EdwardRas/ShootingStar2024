@@ -14,6 +14,7 @@ using namespace CanSatKit;
 
 bool isFlying = false;
 bool isAirbagDeployed = false;
+bool isLanded = false;
 float altitude = 0;
 float prevAltitude = 0;
 float zAcceleration = 0;
@@ -98,13 +99,16 @@ void loop() {
   //On the ground mode, detect if acceleration is greater than 10 m/s^2
   if(!isFlying){
     prevAltitude = altitude;
+    //get pressure
+    PresSensor.measureTemperatureAndPressure(temperature, pressure);
     //get altitude
+    altitude = (1013 - pressure) / 0.12
     if (altitude - prevAltitude >= 10){
       isFlying = true;
     }
   }
   // Flight mode, conduct all measurements and check to deploy airbag, send and record data
-  else{
+  else if(!isLanded){
     t++;
     //get acceleration;
     sensors_event_t event; 
@@ -140,5 +144,10 @@ void loop() {
     //send all data (zAcceleration, temperature, pressure, altitude, change in altitude, airbagStatus) via radio;
     sendAllMeasurements();
     delay(750);
+   else if(isLanded){
+    t++;
+    sendclock();
+    delay(750);
+   }
   }
 }
