@@ -25,29 +25,40 @@ int heaterCounter = 0;
 double temperature = 0;
 double pressure = 0;
 
+
+const char filename[] = "datalog.txt";
+// File object to represent file
+File myFile;
+// string to buffer output
+String dataBuffer;
+// last time data was written to card:
+unsigned long lastMillis = 0;
+
 BMP280 PresSensor;
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 
-//Radio radio(Pins::Radio::ChipSelect,
- //           Pins::Radio::DIO0,
-    //        433.0,
-        //    Bandwidth_125000_Hz,
-         //   SpreadingFactor_9,
-            //CodingRate_4_8);
+Radio radio(Pins::Radio::ChipSelect,
+Pins::Radio::DIO0,
+433.0,
+Bandwidth_125000_Hz,
+SpreadingFactor_9,
+CodingRate_4_8);
 
 void sendMeasurement (float data){
   char measurement [7];
   floatToString(data, measurement, sizeof(measurement), 4);
-SerialUSB.println(measurement);
-  // change to radio.transmit(measurement);
+//SerialUSB.println(measurement);
+radio.transmit(measurement);
+myFile.println(measurement);
 }
 
 void sendClock(){
   float x = t;
  char time [7];
   floatToString(x, time, sizeof(time), 1);
-SerialUSB.println(time);
-  // change to radio.transmit(time);
+//SerialUSB.println(time);
+radio.transmit(time);
+myFile.println(time);
 t++;
 }
 
@@ -63,7 +74,16 @@ void sendAllMeasurements (void){
 
 void setup() {
   // put your setup code here, to run once:
-  //radio.begin();
+  Serial.begin(9600);
+  dataBuffer.reserve(1024);
+  myFile = SD.open(filename, FILE_WRITE);
+  if (!myFile) {
+    Serial.print("error opening ");
+    Serial.println(filename);
+    while (true);
+  }  
+  radio.begin();
+  myFile=SD.open(filename, FILE_WRITE);
   PresSensor.begin();
   Wire.begin();
   byte deviceID = accel.getDeviceID();
@@ -149,10 +169,10 @@ void loop() {
     sendAllMeasurements();
     delay(750);
   }
-   else if(isLanded){
+  else if(isLanded){
     t++;
     sendClock();
     delay(750);
-   
-  }
+ }
 }
+
