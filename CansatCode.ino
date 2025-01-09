@@ -100,7 +100,7 @@ void loop() {
     //get pressure
     PresSensor.measureTemperatureAndPressure(temperature, pressure);
     //get altitude
-    altitude = (1013 - pressure) / 0.12
+    altitude = (1013 - pressure) / 0.12;
     if (altitude - prevAltitude >= 10){
       isFlying = true;
      delay(750);
@@ -121,7 +121,7 @@ void loop() {
     //store previous altitude;
     prevAltitude = altitude;
     //use formula from wikipedia to calculate approx altitude;
-    altitude = (1013 - pressure) / 0.12
+    altitude = (1013 - pressure) / 0.12;
     //calculate change in altitude (altitude - previous altitude);
     altChange = altitude - prevAltitude;
     //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true;
