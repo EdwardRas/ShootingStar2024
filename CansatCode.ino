@@ -148,9 +148,9 @@ void loop() {
     //send all data (zAcceleration, temperature, pressure, altitude, change in altitude, airbagStatus) via radio;
     sendAllMeasurements();
     delay(750);
-   else if(isLanded){
+   else if(isLanded){ //not sure what this is supposed to do, but it doesnt work
     t++;
-    sendclock();
+    sendClock();
     delay(750);
    }
   }
