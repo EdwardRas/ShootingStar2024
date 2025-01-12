@@ -11,7 +11,6 @@ using namespace CanSatKit;
 #define lm35Pin A0
 #define heaterPin 2
 
-bool isFlying = false;
 bool isAirbagDeployed = false;
 bool isLanded = false;
 float altitude = 0;
@@ -114,20 +113,8 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  //On the ground mode, detect if acceleration is greater than 10 m/s^2
-  if(!isFlying){
-    prevAltitude = altitude;
-    //get pressure
-    PresSensor.measureTemperatureAndPressure(temperature, pressure);
-    //get altitude
-    altitude = (1013 - pressure) / 0.12;
-    if (altitude - prevAltitude >= 10){
-      isFlying = true;
-     delay(750);
-    }
-  }
   // Flight mode, conduct all measurements and check to deploy airbag, send and record data
-  else if(!isLanded){
+  if(!isLanded){
     t++;
     //get acceleration;
     sensors_event_t event; 
