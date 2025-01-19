@@ -10,6 +10,7 @@ using namespace CanSatKit;
 #define lm35Pin A0
 #define heaterPin 2
 
+bool isFlying = false;
 bool isAirbagDeployed = false;
 bool isLanded = false;
 float altitude = 0;
@@ -134,7 +135,9 @@ void loop() {
     prevAltChange = altChange;
     altChange = altitude - prevAltitude;
     //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true;
-    
+    if (altitude>=500){
+      isFlying = true;
+    }    
     if (altChange >= 10){
       if (prevAltChange >= 10){
         if (!isAirbagDeployed){
@@ -150,9 +153,11 @@ void loop() {
         digitalWrite(heaterPin, LOW);
       }
     }
-   if (altitude <= 500){
-    if (altChange <= 1){
-     isLanded = true;
+    if (isFlying==true){ 
+     if (altitude <= 500){
+      if (altChange <= 1){
+      isLanded = true;
+      isFlying = false;
     }
    }
     //record all data on sd card;
