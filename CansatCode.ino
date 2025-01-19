@@ -160,7 +160,6 @@ void loop() {
       isFlying = false;
     }
    }
-    //record all data on sd card;
     //send all data (zAcceleration, temperature, pressure, altitude, change in altitude, airbagStatus) via radio;
     sendAllMeasurements();
     delay(750);
