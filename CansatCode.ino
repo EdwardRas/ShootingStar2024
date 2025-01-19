@@ -1,4 +1,3 @@
-#include <Servo.h>
 #include <CanSatKit.h>
 #include <floatToString.h>
 #include <Wire.h>
@@ -74,6 +73,7 @@ void sendAllMeasurements (void){
 
 void setup() {
   // put your setup code here, to run once:
+  analogReadResolution(12);
   Serial.begin(9600);
   dataBuffer.reserve(1024);
   myFile = SD.open(filename, FILE_WRITE);
