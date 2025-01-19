@@ -17,6 +17,7 @@ float altitude = 0;
 float prevAltitude = 0;
 float zAcceleration = 0;
 float altChange = 0;
+float prevAltChange = 0;
 float rawTemp = 0;
 float voltage = 0;
 int t = 0;
@@ -130,14 +131,17 @@ void loop() {
     //use formula from wikipedia to calculate approx altitude;
     altitude = (1013 - pressure) / 0.12;
     //calculate change in altitude (altitude - previous altitude);
+    prevAltChange = altChange;
     altChange = altitude - prevAltitude;
     //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true;
     
     if (altChange >= 10){
-      if (!isAirbagDeployed){
-        //set heaterPin to high to let power through(transistor)
-        isAirbagDeployed = true;
-        digitalWrite(heaterPin, HIGH);
+      if (prevAltChange >= 10){
+        if (!isAirbagDeployed){
+          //set heaterPin to high to let power through(transistor)
+          isAirbagDeployed = true;
+          digitalWrite(heaterPin, HIGH);
+        }
       }
     }
     if (isAirbagDeployed){
