@@ -72,6 +72,12 @@ void sendAllMeasurements (void){
   sendMeasurement(isAirbagDeployed);
 }
 
+float getTemperature(int raw){
+  voltage = raw * 5 / (std::pow(2, 12));
+  temperature = 100.0 * voltage;
+  return temperature;
+}
+
 void setup() {
   // put your setup code here, to run once:
   analogReadResolution(12);
@@ -125,8 +131,7 @@ void loop() {
     //get pressure;
     PresSensor.measureTemperatureAndPressure(temperature, pressure);
     //get temperature;
-    voltage = rawTemp * 5 / (std::pow(2, 12));
-    temperature = 100.0 * voltage;
+    getTemperature(rawTemp);
     //store previous altitude;
     prevAltitude = altitude;
     //use formula from wikipedia to calculate approx altitude;
