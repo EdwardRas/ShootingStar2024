@@ -9,7 +9,7 @@ using namespace CanSatKit;
 
 #define externalLM35Pin A0
 #define liPolLM35Pin A2
-#define heaterPin 2
+#define heaterPin 3
 
 bool isFlying = false;
 bool isAirbagDeployed = false;
