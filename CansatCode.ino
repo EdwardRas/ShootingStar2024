@@ -8,7 +8,6 @@
 using namespace CanSatKit;
 
 #define externalLM35Pin A0
-#define liPolLM35Pin A2
 #define heaterPin 3
 
 bool isFlying = false;
@@ -21,7 +20,6 @@ float altChange = 0;
 float prevAltChange = 0;
 float rawTemp = 0;
 float voltage = 0;
-float liPolTemperature = 0;
 int t = 0;
 int heaterCounter = 0;
 double temperature = 0;
@@ -79,11 +77,7 @@ float getExternalTemperature(int raw){
   temperature = 100.0 * voltage;
   return temperature;
 }
-float getliPolTemperature(int raw){
-  voltage = raw * 5 / (std::pow(2, 12));
-  liPolTemperature = 100.0 * voltage;
-  return liPolTemperature;
-}
+
 void setup() {
   // put your setup code here, to run once:
   analogReadResolution(12);
@@ -139,12 +133,6 @@ void loop() {
     //get external temperature;
     rawTemp = analogRead(externalLM35Pin);
     getExternalTemperature(rawTemp);
-    //get and process liPol temperature
-    rawTemp  = analogRead(liPolLM35Pin);
-    getliPolTemperature(rawTemp);
-    if liPolTemperature >= 55{
-      digitalWrite(heaterPin, LOW);
-    }
     //store previous altitude;
     prevAltitude = altitude;
     //use formula from wikipedia to calculate approx altitude;
