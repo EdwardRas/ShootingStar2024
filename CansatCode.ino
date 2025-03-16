@@ -121,7 +121,6 @@ void setup() {
   /* Set the range to whatever is appropriate for your project */
   accel.setRange(ADXL345_RANGE_16_G);
   //Only for testing:
-  SerialUSB.begin(9600);
   if(!PresSensor.begin()){
     SerialUSB.println("BMP280 init failed!");
   }
