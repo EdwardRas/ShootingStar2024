@@ -24,7 +24,7 @@ int t = 0;
 int heaterCounter = 0;
 double temperature = 0;
 double pressure = 0;
-
+const int chipSelect = 10;
 
 const char filename[] = "datalog.txt";
 // File object to represent file
