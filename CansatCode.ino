@@ -10,7 +10,7 @@ using namespace CanSatKit;
 #define externalLM35Pin A0
 #define airbagPin 3
 
-bool isFlying = false;
+bool isFlying = true;
 bool isAirbagDeployed = false;
 bool isLanded = false;
 float altitude = 0;
@@ -24,32 +24,33 @@ int t = 0;
 int airbagCounter = 0;
 double temperature = 0;
 double pressure = 0;
-const int chipSelect = 10;
+//const int chipSelect = 11;
 
-const char filename[] = "datalog.txt";
+//const char filename[] = "datalog.txt";
 // File object to represent file
-File myFile;
+//File myFile;
 // string to buffer output
-String dataBuffer;
+//String dataBuffer;
 // last time data was written to card:
-unsigned long lastMillis = 0;
+//unsigned long lastMillis = 0;
 
+Frame frame;
 BMP280 PresSensor;
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 
 Radio radio(Pins::Radio::ChipSelect,
-Pins::Radio::DIO0,
-433.0,
-Bandwidth_125000_Hz,
-SpreadingFactor_9,
-CodingRate_4_8);
+            Pins::Radio::DIO0,
+            433.0,
+            Bandwidth_125000_Hz,
+            SpreadingFactor_9,
+            CodingRate_4_8);
 
 void sendMeasurement (float data){
   char measurement [7];
   floatToString(data, measurement, sizeof(measurement), 4);
-//SerialUSB.println(measurement);
-radio.transmit(measurement);
-myFile.println(measurement);
+SerialUSB.println(measurement);
+frame.print(measurement);
+//myFile.println(measurement);
 }
 
 void sendClock(){
@@ -61,23 +62,25 @@ radio.transmit(time);
 t++;
 }
 
-void sendAllMeasurements (void){
+void sendAllMeasurements(){
   sendClock();
-  radio.transmit("temperature: ");
+  frame.println("temperature: ");
   sendMeasurement(temperature);
-  radio.transmit("pressure: ");
+  frame.println("pressure: ");
   sendMeasurement(pressure);
-  radio.transmit("acceleration: ");
+  frame.println("acceleration: ");
   sendMeasurement(zAcceleration);
-  radio.transmit("altitude: ");
+  frame.println("altitude: ");
   sendMeasurement(altitude);
-  radio.transmit("altchange: ");
+  frame.println("altchange: ");
   sendMeasurement(altChange);
   if (isAirbagDeployed == true){
-    radio.transmit("airbag is deployed");
+    frame.println("airbag is deployed");
   }
   else{
-    radio.transmit("airbag not deployed");
+    frame.println("airbag not deployed");
+  radio.transmit(frame);
+  frame.clear();
   }
 }
 
@@ -90,16 +93,16 @@ float getExternalTemperature(int raw){
 void setup() {
   // put your setup code here, to run once:
   analogReadResolution(12);
-  Serial.begin(9600);
-  dataBuffer.reserve(1024);
-  myFile = SD.open(filename, FILE_WRITE);
-  if (!myFile) {
-    Serial.print("error opening ");
-    Serial.println(filename);
-    while (true);
-  }  
+  SerialUSB.begin(9600);
+  //dataBuffer.reserve(1024);
+  //myFile = SD.open(filename, FILE_WRITE);
+  //if (!myFile) {
+  //  SerialUSB.print("error opening ");
+  //  SerialUSB.println(filename);
+  //  while (true);
+  //}  
   radio.begin();
-  myFile=SD.open(filename, FILE_WRITE);
+  //myFile=SD.open(filename, FILE_WRITE);
   PresSensor.begin();
   Wire.begin();
   byte deviceID = accel.getDeviceID();
@@ -131,8 +134,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   // Flight mode, conduct all measurements and check to deploy airbag, send and record data
-  if(!isLanded){
-    t++;
+  if(isFlying){
     //get acceleration;
     sensors_event_t event; 
     accel.getEvent(&event);
@@ -168,21 +170,35 @@ void loop() {
         digitalWrite(airbagPin, LOW);
       }
     }
-    if (isFlying==true){ 
-     if (altitude <= 500){
+     /*if (altitude <= 500){
       if (altChange <= 1){
       isLanded = true;
       isFlying = false;
     }
-   }
+   }*/
     //send all data (zAcceleration, temperature, pressure, altitude, change in altitude, airbagStatus) via radio;
-    sendAllMeasurements();
-    delay(750);
+    //sendAllMeasurements();
+  sendClock();
+  radio.transmit("temperature: ");
+  sendMeasurement(temperature);
+  radio.transmit("pressure: ");
+  sendMeasurement(pressure);
+  radio.transmit("acceleration: ");
+  sendMeasurement(zAcceleration);
+  radio.transmit("altitude: ");
+  sendMeasurement(altitude);
+  radio.transmit("altchange: ");
+  sendMeasurement(altChange);
+  if (isAirbagDeployed == true){
+    radio.transmit("airbag is deployed");
   }
-  else if(isLanded){
-    t++;
-    sendClock();
+  else{
+    radio.transmit("airbag not deployed");
+  }
     delay(750);
  }
-}
+   else if(isLanded){
+    sendClock();
+    delay(750);
+  }
 }
