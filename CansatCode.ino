@@ -8,7 +8,7 @@
 using namespace CanSatKit;
 
 #define externalLM35Pin A0
-#define heaterPin 3
+#define airbagPin 3
 
 bool isFlying = false;
 bool isAirbagDeployed = false;
@@ -21,7 +21,7 @@ float prevAltChange = 0;
 float rawTemp = 0;
 float voltage = 0;
 int t = 0;
-int heaterCounter = 0;
+int airbagCounter = 0;
 double temperature = 0;
 double pressure = 0;
 const int chipSelect = 10;
@@ -94,7 +94,7 @@ void setup() {
   PresSensor.begin();
   Wire.begin();
   byte deviceID = accel.getDeviceID();
-  pinMode(heaterPin, OUTPUT);
+  pinMode(airbagPin, OUTPUT);
   #ifndef ESP8266
   while (!SerialUSB); // for Leonardo/Micro/Zero
   #endif
@@ -147,16 +147,16 @@ void loop() {
     if (altChange >= 10){
       if (prevAltChange >= 10){
         if (!isAirbagDeployed){
-          //set heaterPin to high to let power through(transistor)
+          //set airbagPin to high to let power through(transistor)
           isAirbagDeployed = true;
-          digitalWrite(heaterPin, HIGH);
+          digitalWrite(airbagPin, HIGH);
         }
       }
     }
     if (isAirbagDeployed){
-      heaterCounter++;
-      if(heaterCounter >= 320){
-        digitalWrite(heaterPin, LOW);
+      airbagCounter++;
+      if(airbagCounter >= 320){
+        digitalWrite(airbagPin, LOW);
       }
     }
     if (isFlying==true){ 
