@@ -8,7 +8,7 @@
 using namespace CanSatKit;
 
 #define externalLM35Pin A0
-#define airbagPin 3
+#define heaterPin 3
 
 bool isFlying = false;
 bool isAirbagDeployed = false;
@@ -21,7 +21,7 @@ float prevAltChange = 0;
 float rawTemp = 0;
 float voltage = 0;
 int t = 0;
-int airbagCounter = 0;
+int heaterCounter = 0;
 double temperature = 0;
 double pressure = 0;
 const int chipSelect = 10;
@@ -58,18 +58,27 @@ void sendClock(){
   floatToString(x, time, sizeof(time), 1);
 //SerialUSB.println(time);
 radio.transmit(time);
-myFile.println(time);
 t++;
 }
 
 void sendAllMeasurements (void){
   sendClock();
+  radio.transmit("temperature: ");
   sendMeasurement(temperature);
+  radio.transmit("pressure: ");
   sendMeasurement(pressure);
+  radio.transmit("acceleration: ");
   sendMeasurement(zAcceleration);
+  radio.transmit("altitude: ");
   sendMeasurement(altitude);
+  radio.transmit("altchange: ");
   sendMeasurement(altChange);
-  sendMeasurement(isAirbagDeployed);
+  if (isAirbagDeployed == true){
+    radio.transmit("airbag is deployed");
+  }
+  else{
+    radio.transmit("airbag not deployed");
+  }
 }
 
 float getExternalTemperature(int raw){
@@ -94,7 +103,7 @@ void setup() {
   PresSensor.begin();
   Wire.begin();
   byte deviceID = accel.getDeviceID();
-  pinMode(airbagPin, OUTPUT);
+  pinMode(heaterPin, OUTPUT);
   #ifndef ESP8266
   while (!SerialUSB); // for Leonardo/Micro/Zero
   #endif
@@ -147,16 +156,16 @@ void loop() {
     if (altChange >= 10){
       if (prevAltChange >= 10){
         if (!isAirbagDeployed){
-          //set airbagPin to high to let power through(transistor)
+          //set heaterPin to high to let power through(transistor)
           isAirbagDeployed = true;
-          digitalWrite(airbagPin, HIGH);
+          digitalWrite(heaterPin, HIGH);
         }
       }
     }
     if (isAirbagDeployed){
-      airbagCounter++;
-      if(airbagCounter >= 320){
-        digitalWrite(airbagPin, LOW);
+      heaterCounter++;
+      if(heaterCounter >= 320){
+        digitalWrite(heaterPin, LOW);
       }
     }
     if (isFlying==true){ 
