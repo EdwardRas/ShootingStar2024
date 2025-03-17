@@ -1,9 +1,10 @@
 #include <CanSatKit.h>
 #include <floatToString.h>
-#include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_ADXL345_U.h>
+//#include <Wire.h>
+//#include <Adafruit_Sensor.h>
+//#include <Adafruit_ADXL345_U.h>
 #include <SD.h>
+#include <cmath>
 
 using namespace CanSatKit;
 
@@ -20,10 +21,10 @@ float altChange = 0;
 float prevAltChange = 0;
 float rawTemp = 0;
 float voltage = 0;
+float temperature = 0;
 int t = 0;
 int airbagCounter = 0;
-double temperature = 0;
-double pressure = 0;
+double te, pressure;
 //const int chipSelect = 11;
 
 //const char filename[] = "datalog.txt";
@@ -36,7 +37,7 @@ double pressure = 0;
 
 Frame frame;
 BMP280 PresSensor;
-Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
+//Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 
 Radio radio(Pins::Radio::ChipSelect,
             Pins::Radio::DIO0,
@@ -48,52 +49,50 @@ Radio radio(Pins::Radio::ChipSelect,
 void sendMeasurement (float data){
   char measurement [7];
   floatToString(data, measurement, sizeof(measurement), 4);
-SerialUSB.println(measurement);
-frame.print(measurement);
-//myFile.println(measurement);
+  SerialUSB.println(measurement);
+  frame.println(measurement);
+  //myFile.println(measurement);
 }
 
 void sendClock(){
   float x = t;
- char time [7];
+  char time [7];
   floatToString(x, time, sizeof(time), 1);
-//SerialUSB.println(time);
-radio.transmit(time);
-t++;
+  SerialUSB.println(time);
+  radio.transmit(time);
+  t++;
 }
 
 void sendAllMeasurements(){
   sendClock();
-  frame.println("temperature: ");
   sendMeasurement(temperature);
-  frame.println("pressure: ");
   sendMeasurement(pressure);
-  frame.println("acceleration: ");
-  sendMeasurement(zAcceleration);
-  frame.println("altitude: ");
+  //frame.println("acceleration: ");
+  //sendMeasurement(zAcceleration);
   sendMeasurement(altitude);
-  frame.println("altchange: ");
   sendMeasurement(altChange);
   if (isAirbagDeployed == true){
     frame.println("airbag is deployed");
   }
   else{
     frame.println("airbag not deployed");
+  }
   radio.transmit(frame);
   frame.clear();
-  }
+
 }
 
-float getExternalTemperature(int raw){
-  voltage = raw * 5 / (std::pow(2, 12));
+float getExternalTemperature(int raw) {
+  voltage = raw * 3.3 / (std::pow(2, 12));
   temperature = 100.0 * voltage;
   return temperature;
 }
 
 void setup() {
+  PresSensor.begin();
   // put your setup code here, to run once:
   analogReadResolution(12);
-  SerialUSB.begin(9600);
+  SerialUSB.begin(115200);
   //dataBuffer.reserve(1024);
   //myFile = SD.open(filename, FILE_WRITE);
   //if (!myFile) {
@@ -102,24 +101,23 @@ void setup() {
   //  while (true);
   //}  
   radio.begin();
-  //myFile=SD.open(filename, FILE_WRITE);
   PresSensor.begin();
-  Wire.begin();
-  byte deviceID = accel.getDeviceID();
+  //Wire.begin();
+  //byte deviceID = accel.getDeviceID();
   pinMode(airbagPin, OUTPUT);
-  #ifndef ESP8266
-  while (!SerialUSB); // for Leonardo/Micro/Zero
-  #endif
+  //#ifndef ESP8266
+  //while (!SerialUSB); // for Leonardo/Micro/Zero
+  //#endif
   /* Initialise the sensor */
-  if(!accel.begin())
+  /*if(!accel.begin())
   {
-    /* There was a problem detecting the ADXL345 ... check your connections */
+    // There was a problem detecting the ADXL345 ... check your connections
     SerialUSB.println("Ooops, no ADXL345 detected ... Check your wiring!");
     while(1);
-  }
+  }*/
 
   /* Set the range to whatever is appropriate for your project */
-  accel.setRange(ADXL345_RANGE_16_G);
+  //accel.setRange(ADXL345_RANGE_16_G);
   //Only for testing:
   if(!PresSensor.begin()){
     SerialUSB.println("BMP280 init failed!");
@@ -135,11 +133,11 @@ void loop() {
   // Flight mode, conduct all measurements and check to deploy airbag, send and record data
   if(isFlying){
     //get acceleration;
-    sensors_event_t event; 
-    accel.getEvent(&event);
-    zAcceleration = event.acceleration.z;
+    //sensors_event_t event; 
+    //accel.getEvent(&event);
+    //zAcceleration = event.acceleration.z;
     //get pressure;
-    PresSensor.measureTemperatureAndPressure(temperature, pressure);
+    PresSensor.measureTemperatureAndPressure(te, pressure);
     //get external temperature;
     rawTemp = analogRead(externalLM35Pin);
     getExternalTemperature(rawTemp);
@@ -150,10 +148,7 @@ void loop() {
     //calculate change in altitude (altitude - previous altitude);
     prevAltChange = altChange;
     altChange = altitude - prevAltitude;
-    //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true;
-    if (altitude>=500){
-      isFlying = true;
-    }    
+    //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true; 
     if (altChange >= 10){
       if (prevAltChange >= 10){
         if (!isAirbagDeployed){
@@ -176,28 +171,11 @@ void loop() {
     }
    }*/
     //send all data (zAcceleration, temperature, pressure, altitude, change in altitude, airbagStatus) via radio;
-    //sendAllMeasurements();
-  sendClock();
-  radio.transmit("temperature: ");
-  sendMeasurement(temperature);
-  radio.transmit("pressure: ");
-  sendMeasurement(pressure);
-  radio.transmit("acceleration: ");
-  sendMeasurement(zAcceleration);
-  radio.transmit("altitude: ");
-  sendMeasurement(altitude);
-  radio.transmit("altchange: ");
-  sendMeasurement(altChange);
-  if (isAirbagDeployed == true){
-    radio.transmit("airbag is deployed");
-  }
-  else{
-    radio.transmit("airbag not deployed");
-  }
+    sendAllMeasurements();
     delay(750);
  }
    else if(isLanded){
-    sendClock();
+    //sendClock();
     delay(750);
   }
 }
