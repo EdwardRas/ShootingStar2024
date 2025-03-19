@@ -29,7 +29,7 @@ double te, pressure;
 
 //const char filename[] = "datalog.txt";
 // File object to represent file
-//File myFile;
+//File dataFile;
 // string to buffer output
 //String dataBuffer;
 // last time data was written to card:
@@ -48,10 +48,13 @@ Radio radio(Pins::Radio::ChipSelect,
 
 void sendMeasurement (float data){
   char measurement [7];
-  floatToString(data, measurement, sizeof(measurement), 4);
+  floatToString(data, measurement, sizeof(measurement), 3);
   SerialUSB.println(measurement);
   frame.println(measurement);
-  //myFile.println(measurement);
+  /*if (dataFile) {
+    dataFile.println(measurement);
+    dataFile.close();
+  }*/
 }
 
 void sendClock(){
@@ -65,17 +68,21 @@ void sendClock(){
 
 void sendAllMeasurements(){
   sendClock();
+  frame.print("temperature:");
   sendMeasurement(temperature);
+  frame.print("pressure:");
   sendMeasurement(pressure);
   //frame.println("acceleration: ");
   //sendMeasurement(zAcceleration);
+  frame.print("altitude:");
   sendMeasurement(altitude);
+  frame.print("altChange:");
   sendMeasurement(altChange);
   if (isAirbagDeployed == true){
-    frame.println("airbag is deployed");
+    radio.transmit("airbag is deployed");
   }
   else{
-    frame.println("airbag not deployed");
+    radio.transmit("airbag not deployed");
   }
   radio.transmit(frame);
   frame.clear();
@@ -93,13 +100,13 @@ void setup() {
   // put your setup code here, to run once:
   analogReadResolution(12);
   SerialUSB.begin(115200);
-  //dataBuffer.reserve(1024);
-  //myFile = SD.open(filename, FILE_WRITE);
-  //if (!myFile) {
-  //  SerialUSB.print("error opening ");
-  //  SerialUSB.println(filename);
-  //  while (true);
-  //}  
+  /*dataBuffer.reserve(1024);
+  File dataFile = SD.open("datalog.txt", FILE_WRITE);
+  if (!dataFile) {
+    SerialUSB.print("error opening ");
+    SerialUSB.println(filename);
+    while (true);
+  }*/  
   radio.begin();
   PresSensor.begin();
   //Wire.begin();
