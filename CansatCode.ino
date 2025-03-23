@@ -24,8 +24,8 @@ float voltage = 0;
 float temperature = 0;
 int t = 0;
 int airbagCounter = 0;
-double te, pressure;
-//const int chipSelect = 11;
+double te, pressure, groundPressure;
+const int chipSelect = 11;
 
 //const char filename[] = "datalog.txt";
 // File object to represent file
@@ -133,6 +133,7 @@ void setup() {
     SerialUSB.println("BMP280 init succesful");
   }
    PresSensor.setOversampling(16);
+   PresSensor.measureTemperatureAndPressure(te, groundPressure);
 }
 
 void loop() {
@@ -151,23 +152,25 @@ void loop() {
     //store previous altitude;
     prevAltitude = altitude;
     //use formula from wikipedia to calculate approx altitude;
-    altitude = (1013 - pressure) / 0.12;
+    altitude = (groundPressure - pressure) / 0.12;
     //calculate change in altitude (altitude - previous altitude);
     prevAltChange = altChange;
-    altChange = altitude - prevAltitude;
+    altChange = (altitude - prevAltitude)*-1;
     //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true; 
     if (altChange >= 10){
       if (prevAltChange >= 10){
-        if (!isAirbagDeployed){
-          //set airbagPin to high to let power through(transistor)
-          isAirbagDeployed = true;
-          digitalWrite(airbagPin, HIGH);
-        }
+        if (altitude <= 1500){
+          if (!isAirbagDeployed){
+            //set airbagPin to high to let power through(transistor)
+             isAirbagDeployed = true;
+            digitalWrite(airbagPin, HIGH);
+          }
+        }  
       }
     }
     if (isAirbagDeployed){
       airbagCounter++;
-      if(airbagCounter >= 320){
+      if(airbagCounter >= 66){
         digitalWrite(airbagPin, LOW);
       }
     }
