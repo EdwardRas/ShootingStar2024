@@ -9,7 +9,7 @@
 using namespace CanSatKit;
 
 #define externalLM35Pin A0
-#define airbagPin 3
+#define airbagPin 5 //digital 3 is likely broken, no clue why
 
 bool isFlying = true;
 bool isAirbagDeployed = false;
@@ -48,7 +48,7 @@ Radio radio(Pins::Radio::ChipSelect,
 
 void sendMeasurement (float data){
   char measurement [7];
-  floatToString(data, measurement, sizeof(measurement), 3);
+  floatToString(data, measurement, sizeof(measurement), 2);
   SerialUSB.println(measurement);
   frame.println(measurement);
   /*if (dataFile) {
@@ -59,30 +59,30 @@ void sendMeasurement (float data){
 
 void sendClock(){
   float x = t;
-  char time [7];
-  floatToString(x, time, sizeof(time), 1);
+  char time [5];
+  floatToString(x, time, sizeof(time), 0);
   SerialUSB.println(time);
-  radio.transmit(time);
+  frame.println(time);
   t++;
 }
 
 void sendAllMeasurements(){
   sendClock();
-  frame.print("temperature:");
+  frame.print("temp:");
   sendMeasurement(temperature);
   frame.print("pressure:");
   sendMeasurement(pressure);
   //frame.println("acceleration: ");
   //sendMeasurement(zAcceleration);
-  frame.print("altitude:");
+  frame.print("alt:");
   sendMeasurement(altitude);
   frame.print("altChange:");
   sendMeasurement(altChange);
   if (isAirbagDeployed == true){
-    radio.transmit("airbag is deployed");
+    radio.transmit("airbag is out");
   }
   else{
-    radio.transmit("airbag not deployed");
+    radio.transmit("airbag not out");
   }
   radio.transmit(frame);
   frame.clear();
@@ -90,7 +90,7 @@ void sendAllMeasurements(){
 }
 
 float getExternalTemperature(int raw) {
-  voltage = raw * 3.3 / (std::pow(2, 12));
+  voltage = raw * 3.3 / (std::pow(2, 10));
   temperature = 100.0 * voltage;
   return temperature;
 }
@@ -155,27 +155,30 @@ void loop() {
     altitude = (groundPressure - pressure) / 0.12;
     //calculate change in altitude (altitude - previous altitude);
     prevAltChange = altChange;
-    altChange = (altitude - prevAltitude)*-1;
+    altChange = (altitude - prevAltitude);
     //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true; 
-    if (altChange >= 10){
-      if (prevAltChange >= 10){
-        if (altitude <= 1500){
+    //if (altChange <= -10){
+      //if (prevAltChange <= -10){
+        //if (altitude >= 1000){
+    if(t >= 10){ 
           if (!isAirbagDeployed){
             //set airbagPin to high to let power through(transistor)
              isAirbagDeployed = true;
             digitalWrite(airbagPin, HIGH);
+            SerialUSB.println("Airbag deployed");
           }
-        }  
-      }
+          //}
+        //}  
+      //}
     }
     if (isAirbagDeployed){
       airbagCounter++;
-      if(airbagCounter >= 66){
+      if(airbagCounter >= 50){
         digitalWrite(airbagPin, LOW);
       }
     }
      /*if (altitude <= 500){
-      if (altChange <= 1){
+      if (altChange <= 1, altChange >= -1){
       isLanded = true;
       isFlying = false;
     }
