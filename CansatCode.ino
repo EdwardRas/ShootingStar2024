@@ -3,6 +3,7 @@
 //#include <Wire.h>
 //#include <Adafruit_Sensor.h>
 //#include <Adafruit_ADXL345_U.h>
+#include <SPI.h>
 #include <SD.h>
 #include <cmath>
 
@@ -51,6 +52,12 @@ void sendMeasurement (float data){
   floatToString(data, measurement, sizeof(measurement), 2);
   SerialUSB.println(measurement);
   frame.println(measurement);
+  /*dataFile = SD.open("datalog.txt", FILE_WRITE);
+  if (!dataFile) {
+    SerialUSB.print("error opening ");
+    SerialUSB.println(filename);
+    while (true);
+  }*/
   /*if (dataFile) {
     dataFile.println(measurement);
     dataFile.close();
@@ -98,10 +105,11 @@ float getExternalTemperature(int raw) {
 void setup() {
   PresSensor.begin();
   // put your setup code here, to run once:
+  dataBuffer.reserve(1024);
   analogReadResolution(12);
   SerialUSB.begin(115200);
   /*dataBuffer.reserve(1024);
-  File dataFile = SD.open("datalog.txt", FILE_WRITE);
+  dataFile = SD.open("datalog.txt", FILE_WRITE);
   if (!dataFile) {
     SerialUSB.print("error opening ");
     SerialUSB.println(filename);
