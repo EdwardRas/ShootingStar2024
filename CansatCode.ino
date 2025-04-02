@@ -69,6 +69,17 @@ void sendClock(){
   floatToString(x, time, sizeof(time), 0);
   SerialUSB.println(time);
   frame.println(time);
+  dataFile = SD.open(filename, FILE_WRITE);
+  if (!dataFile) {
+    SerialUSB.print("error opening ");
+    SerialUSB.println(filename);
+    //while (true);
+  }
+  if (dataFile) {
+    dataFile.println(time);
+    SerialUSB.println(time);
+    dataFile.close();
+  }
   t++;
 }
 
@@ -94,12 +105,14 @@ void sendAllMeasurements(){
 }
 
 float getExternalTemperature(int raw) {
-  voltage = raw * 3.3 / (std::pow(2, 10));
+  voltage = raw * 3.3 / (std::pow(2, 12));
   temperature = 100.0 * voltage;
   return temperature;
 }
 
 void setup() {
+  //safety delay for code upload
+  delay(1500);
   SD.begin(chipSelect);
   PresSensor.begin();
   // put your setup code here, to run once:
@@ -122,6 +135,11 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  //safety delay for code upload
+  if(t == 0){
+    delay(1500);
+    t = 1;
+  }
   // Flight mode, conduct all measurements and check to deploy airbag, send and record data
   if(isFlying){
     //get pressure;
