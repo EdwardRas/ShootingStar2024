@@ -1,7 +1,7 @@
 #include <CanSatKit.h>
 #include <floatToString.h>
 #include <SD.h>
-#include <cmath>
+#include <SPI.h>
 
 using namespace CanSatKit;
 
@@ -22,6 +22,7 @@ float temperature = 0;
 int t = 0;
 int airbagCounter = 0;
 double te, pressure, groundPressure;
+
 const int chipSelect = 11;
 
 const char filename[] = "datalog.txt";
@@ -33,6 +34,7 @@ String dataBuffer;
 unsigned long lastMillis = 0;
 
 Frame frame;
+
 BMP280 PresSensor;
 
 
@@ -48,13 +50,15 @@ void sendMeasurement (float data){
   floatToString(data, measurement, sizeof(measurement), 2);
   SerialUSB.println(measurement);
   frame.println(measurement);
-  dataFile = SD.open("datalog.txt", FILE_WRITE);
+  dataFile = SD.open(filename, FILE_WRITE);
   if (!dataFile) {
     SerialUSB.print("error opening ");
     SerialUSB.println(filename);
+    //while (true);
   }
   if (dataFile) {
     dataFile.println(measurement);
+    SerialUSB.println(measurement);
     dataFile.close();
   }
 }
@@ -102,7 +106,7 @@ void setup() {
   analogReadResolution(12);
   SerialUSB.begin(9600);
   dataBuffer.reserve(1024);
-  radio.begin();
+  //radio.begin();
   PresSensor.begin();
   pinMode(airbagPin, OUTPUT);
   //Only for testing:
