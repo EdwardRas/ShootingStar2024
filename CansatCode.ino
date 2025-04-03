@@ -11,6 +11,7 @@ using namespace CanSatKit;
 bool isFlying = true;
 bool isAirbagDeployed = false;
 bool isLanded = false;
+bool isLaunched = false;
 float altitude = 0;
 float prevAltitude = 0;
 float zAcceleration = 0;
@@ -94,11 +95,14 @@ void sendAllMeasurements(){
   frame.print("altChange:");
   sendMeasurement(altChange);
   if (isAirbagDeployed == true){
-    radio.transmit("airbag is out");
+    frame.println("airbag is out");
   }
   else{
-    radio.transmit("airbag not out");
+    frame.println("airbag not out");
   }
+  //calculates a control sum so that it may be cross refrenced to detect data corruption in transmission
+  int ctrlSum = altChange + temperature + pressure + altitude;
+  sendMeasurement(ctrlSum);
   radio.transmit(frame);
   frame.clear();
 
@@ -117,7 +121,7 @@ void setup() {
   PresSensor.begin();
   // put your setup code here, to run once:
   analogReadResolution(12);
-  SerialUSB.begin(9600);
+  SerialUSB.begin(115200);
   dataBuffer.reserve(1024);
   //radio.begin();
   PresSensor.begin();
@@ -154,9 +158,13 @@ void loop() {
     //calculate change in altitude (altitude - previous altitude);
     prevAltChange = altChange;
     altChange = (altitude - prevAltitude);
+    //to stop any misfire of the airbag on the ground
+    if(altitude >= 200 && prevAltitude >= 200){
+      isLaunched = true;
+    }
     //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true; 
-    if (altChange <= -10){
-      if (prevAltChange <= -10){
+    if (isLaunched){
+      if (prevAltChange <= -5 && altChange <= -5){
         if (altitude >= 1000){
           if (!isAirbagDeployed){
             //set airbagPin to high to let power through(transistor)
