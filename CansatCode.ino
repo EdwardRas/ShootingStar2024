@@ -123,7 +123,7 @@ void setup() {
   analogReadResolution(12);
   SerialUSB.begin(115200);
   dataBuffer.reserve(1024);
-  //radio.begin();
+  radio.begin();
   PresSensor.begin();
   pinMode(airbagPin, OUTPUT);
   //Only for testing:
