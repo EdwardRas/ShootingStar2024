@@ -41,7 +41,7 @@ BMP280 PresSensor;
 
 Radio radio(Pins::Radio::ChipSelect,
             Pins::Radio::DIO0,
-            433.0,
+            433.3,
             Bandwidth_125000_Hz,
             SpreadingFactor_9,
             CodingRate_4_8);
