@@ -1,7 +1,7 @@
 #include <CanSatKit.h>
 #include <floatToString.h>
-#include <SD.h>
 #include <SPI.h>
+#include <SD.h>
 
 using namespace CanSatKit;
 
@@ -28,11 +28,11 @@ const int chipSelect = 11;
 
 const char filename[] = "datalog.txt";
 // File object to represent file
-File dataFile;
+File file;
 // string to buffer output
 String dataBuffer;
 // last time data was written to card:
-unsigned long lastMillis = 0;
+//unsigned long lastMillis = 0;
 
 Frame frame;
 
@@ -51,16 +51,14 @@ void sendMeasurement (float data){
   floatToString(data, measurement, sizeof(measurement), 2);
   SerialUSB.println(measurement);
   frame.println(measurement);
-  dataFile = SD.open(filename, FILE_WRITE);
-  if (!dataFile) {
-    SerialUSB.print("error opening ");
-    SerialUSB.println(filename);
-    //while (true);
+  file = SD.open("datalog.txt", FILE_WRITE);
+  if(file){
+    file.println(data);
+    file.close();
+    //SerialUSB.println(data);
   }
-  if (dataFile) {
-    dataFile.println(measurement);
-    SerialUSB.println(measurement);
-    dataFile.close();
+  else{
+    SerialUSB.println("error opening datalog.txt");
   }
 }
 
@@ -70,29 +68,28 @@ void sendClock(){
   floatToString(x, time, sizeof(time), 0);
   SerialUSB.println(time);
   frame.println(time);
-  dataFile = SD.open(filename, FILE_WRITE);
-  if (!dataFile) {
-    SerialUSB.print("error opening ");
-    SerialUSB.println(filename);
-    //while (true);
+  file = SD.open("datalog.txt", FILE_WRITE);
+  if(file){
+    file.println(time);
+    file.close();
+    //SerialUSB.println(time);
   }
-  if (dataFile) {
-    dataFile.println(time);
-    SerialUSB.println(time);
-    dataFile.close();
+  else{
+    SerialUSB.println("error opening datalog.txt");
   }
   t++;
 }
 
 void sendAllMeasurements(){
+  SD.begin(chipSelect);
   sendClock();
-  frame.print("temp:");
+  //frame.print("temp:");
   sendMeasurement(temperature);
-  frame.print("pressure:");
+  //frame.print("pressure:");
   sendMeasurement(pressure);
-  frame.print("alt:");
+  //frame.print("alt:");
   sendMeasurement(altitude);
-  frame.print("altChange:");
+  //frame.print("altChange:");
   sendMeasurement(altChange);
   if (isAirbagDeployed == true){
     frame.println("airbag is out");
@@ -100,9 +97,10 @@ void sendAllMeasurements(){
   else{
     frame.println("airbag not out");
   }
-  //calculates a control sum so that it may be cross refrenced to detect data corruption in transmission
+  //calculates a control sum so that it may be cross refrenced to detect data corruption in transmission, right now, the control sum breaks radio for some reason
   int ctrlSum = altChange + temperature + pressure + altitude;
   sendMeasurement(ctrlSum);
+  radio.begin();
   radio.transmit(frame);
   frame.clear();
 
@@ -117,13 +115,11 @@ float getExternalTemperature(int raw) {
 void setup() {
   //safety delay for code upload
   delay(1500);
-  SD.begin(chipSelect);
+  SerialUSB.begin(9600);
   PresSensor.begin();
   // put your setup code here, to run once:
   analogReadResolution(12);
-  SerialUSB.begin(115200);
   dataBuffer.reserve(1024);
-  radio.begin();
   PresSensor.begin();
   pinMode(airbagPin, OUTPUT);
   //Only for testing:
@@ -133,8 +129,8 @@ void setup() {
   else{
     SerialUSB.println("BMP280 init succesful");
   }
-   PresSensor.setOversampling(16);
-   PresSensor.measureTemperatureAndPressure(te, groundPressure);
+  PresSensor.setOversampling(16);
+  PresSensor.measureTemperatureAndPressure(te, groundPressure);
 }
 
 void loop() {
@@ -164,8 +160,8 @@ void loop() {
     }
     //if change in altitude <= (-)TBD and isAirbagDeployed == false, deploy airbag(power on heating); isAirbagDeployed = true; 
     if (isLaunched){
-      if (prevAltChange <= -5 && altChange <= -5){
-        if (altitude >= 1000){
+      if (prevAltChange <= -3 && altChange <= -3){
+        if (altitude <= 1500 && prevAltitude <= 1500){
           if (!isAirbagDeployed){
             //set airbagPin to high to let power through(transistor)
              isAirbagDeployed = true;
@@ -182,7 +178,7 @@ void loop() {
       }
     }
      /*if (altitude <= 500){
-      if (altChange <= 1, altChange >= -1){
+      if (altChange <= 1 && altChange >= -1){
       isLanded = true;
       isFlying = false;
     }*/
