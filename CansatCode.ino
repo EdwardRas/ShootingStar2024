@@ -173,7 +173,7 @@ void loop() {
       }
     if (isAirbagDeployed){
       airbagCounter++;
-      if(airbagCounter >= 50){
+      if(airbagCounter >= 46){
         digitalWrite(airbagPin, LOW);
       }
     }
