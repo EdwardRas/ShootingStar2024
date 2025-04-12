@@ -189,6 +189,8 @@ void loop() {
   }
    else if(isLanded){
     sendClock();
+    radio.transmit(frame);
+    frame.clear();
     delay(750);
   }
 }
