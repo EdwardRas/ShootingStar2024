@@ -188,7 +188,9 @@ void loop() {
     delay(750);
   }
    else if(isLanded){
+    SD.begin(chipSelect);
     sendClock();
+    radio.begin()
     radio.transmit(frame);
     frame.clear();
     delay(750);
