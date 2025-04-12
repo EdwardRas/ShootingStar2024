@@ -177,11 +177,11 @@ void loop() {
         digitalWrite(airbagPin, LOW);
       }
     }
-     /*if (altitude <= 500){
+     if (altitude <= 200, isLaunched){
       if (altChange <= 1 && altChange >= -1){
       isLanded = true;
       isFlying = false;
-    }*/
+    }
   
     //send all data (temperature, pressure, altitude, change in altitude, airbagStatus) via radio;
     sendAllMeasurements();
